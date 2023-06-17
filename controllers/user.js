@@ -3,42 +3,34 @@ import bcrypt from "bcrypt";
 import { sendCookie } from "../utils/features.js";
 import ErrorHandler from "../middlewares/error.js";
 import nodemailer from 'nodemailer';
+import sendinBlueTransport from 'nodemailer-sendinblue-transport';
 
 
 //........................................Email Verification Start.................................................
 
-
 const sendVerificationMail = async (name, email, user_id) => {
-  try {
-    // console.log("user_id : ", user_id);
-    let transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      auth: {
-        user: `${process.env.ethereal_user}`,
-        pass: `${process.env.ethereal_pass}`
-      }
-    });
+  const transporter = nodemailer.createTransport(
+    new sendinBlueTransport({
+      apiKey: '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',
+    })
+  );
 
-    let ID = user_id.toString();
+  let ID = user_id.toString();
+  // Use the transporter to send emails
+  transporter.sendMail({
+    from: `"vicky" <${process.env.ethereal_user}>`,
+    to: email,
+    subject: 'ToDo App Email Verification',
+    html: `<p>Hello ${name}, please click <a href="${process.env.Backend_server}/users/verify?id=${ID}"><button>HERE</button> </a> to verify your email.</p>`
 
-    const mailOptions = {
-      from: `"Tiara Prohaska" <${process.env.ethereal_user}>`,
-      to: email,
-      subject: 'Verification mail for ToDo App',
-      html: `<p>Hello ${name}, please click <a href="${process.env.Backend_server}/users/verify?id=${ID}">here</a> to verify your email.</p>`
-    };
+  }, (error, info) => {
+    if (error) {
+      console.log('Error:', error);
+    } else {
+      console.log('Email sent successfully');
+    }
+  });
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("Email has been sent ");
-      }
-    });
-  } catch (error) {
-    console.log(error.message);
-  }
 };
 
 export const verifyMail = async (req, resp) => {
@@ -101,7 +93,7 @@ export const register = async (req, res, next) => {
 
     sendVerificationMail(name, email, user._id);
 
-    if (!user.isVerified) return next(new ErrorHandler(" Registered Successfully! Please Verify Your Mail ", 400));
+    if (!user.isVerified) return next(new ErrorHandler(" Registered Successfully!Please check your spam/junk folder for the verification Email ", 400));
     sendCookie(user, res, "Registered Successfully", 201);
 
 
