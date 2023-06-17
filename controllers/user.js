@@ -11,14 +11,14 @@ import sendinBlueTransport from 'nodemailer-sendinblue-transport';
 const sendVerificationMail = async (name, email, user_id) => {
   const transporter = nodemailer.createTransport(
     new sendinBlueTransport({
-      apiKey: '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',
+      apiKey: `${process.env.sendingBlue_pass}`,
     })
   );
 
   let ID = user_id.toString();
   // Use the transporter to send emails
   transporter.sendMail({
-    from: `"vicky" <${process.env.ethereal_user}>`,
+    from: `"vicky" <${process.env.sendingBlue_user}>`,
     to: email,
     subject: 'ToDo App Email Verification',
     html: `<p>Hello ${name}, please click <a href="${process.env.Backend_server}/users/verify?id=${ID}"><button>HERE</button> </a> to verify your email.</p>`
