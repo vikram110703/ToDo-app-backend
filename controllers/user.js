@@ -21,7 +21,9 @@ const sendVerificationMail = async (name, email, user_id) => {
     from: `"vicky" <${process.env.sendingBlue_user}>`,
     to: email,
     subject: 'ToDo App Email Verification',
-    html: `<p>Hello ${name}, please click <a href="${process.env.Backend_server}/users/verify?id=${ID}"><button>HERE</button> </a> to verify your email.</p>`
+    html: `<div> <h1>Hello ${name} </h1>
+    <h2>This mail is for verification your Email for ToDo App </h2>
+     Please click <a href="${process.env.Backend_server}/users/verify?id=${ID}"><button>HERE</button> </a> to verify your email.</div>`
 
   }, (error, info) => {
     if (error) {
@@ -33,22 +35,23 @@ const sendVerificationMail = async (name, email, user_id) => {
 
 };
 
-export const verifyMail = async (req, resp) => {
+export const verifyMail = async (req, res) => {
   try {
 
     const user = await User.findById(req.query.id);
     // console.log(req.query.id);
     if (!user) {
-      return (resp.send(`<h1> Register First  </h1>`))
+      return (res.send(`<h1> Register First  </h1>`))
     }
     const updatedInfo = await User.updateOne({ _id: req.query.id }, { $set: { isVerified: true } });
     // console.log(updatedInfo);
 
-    resp.status(201).send(`<h1>Hello , ${user.name} Email is verified </h1>`);
+    // res.status(201).send(`<h1>Hello , ${user.name} Email is verified </h1>`);
+    res.status(201).redirect(`${process.env.FRONTEND_URL}/login`);
 
   } catch (error) {
     console.log(error);
-    resp.status(404).json({
+    res.status(404).json({
       success: false,
       message: "Register before verification "
     })
@@ -93,7 +96,7 @@ export const register = async (req, res, next) => {
 
     sendVerificationMail(name, email, user._id);
 
-    if (!user.isVerified) return next(new ErrorHandler(" Registered Successfully!Please check your spam/junk folder for the verification Email ", 400));
+    if (!user.isVerified) return next(new ErrorHandler("Registered Successfully! Please Verify Your Email ", 201));
     sendCookie(user, res, "Registered Successfully", 201);
 
 
