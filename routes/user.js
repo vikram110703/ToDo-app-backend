@@ -8,6 +8,7 @@ router.post("/new", register);
 router.post("/login", login);
 router.get('/verify',verifyMail);
 router.get("/logout", logout);
+router.get("/", login);
 
 router.get("/me", isAuthenticated, getMyProfile);
 
