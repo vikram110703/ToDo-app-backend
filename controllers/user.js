@@ -60,6 +60,25 @@ export const verifyMail = async (req, res) => {
 
 // .......................................Verification End......................................................
 
+export const resendEmail = async (req, res, next) => {
+  try {
+    const { newEmail } = req.body;
+    const user = await User.findOne({ email: newEmail });
+
+    if (!user) return next(new ErrorHandler("User Not Found", 400));
+      
+    sendVerificationMail(user.name, user.email, user._id);
+    res.status(200).json({
+      success: true,
+      message: "Verification email sent successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
 
 export const login = async (req, res, next) => {
   try {
@@ -81,6 +100,7 @@ export const login = async (req, res, next) => {
     next(error);
   }
 };
+
 
 export const register = async (req, res, next) => {
   try {
