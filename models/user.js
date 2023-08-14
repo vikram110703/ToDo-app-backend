@@ -38,7 +38,7 @@ schema.methods.getResetToken = function () {
 
   return resetToken;
 };
-// console.log(crypto.randomBytes(20).toString("hex"))
+
 
 
 
