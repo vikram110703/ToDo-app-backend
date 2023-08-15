@@ -117,8 +117,8 @@ export const register = async (req, res, next) => {
     let ID = user._id.toString();
     const subject = `Account Verification ToDo-App `
     const message = `<div> <h1>Hello ${name} </h1>
-    <h2>This mail is for verification your Email for ToDo App </h2> <br/><br/>
-     Please click  <a href="${process.env.Backend_server}/users/verify?id=${ID} "> <button> HERE </button> </a> to verify your email.</div>`;
+    <h2>To verify you account Please click </h2>  <br/><br/>
+       <a href="${process.env.Backend_server}/users/verify?id=${ID} "> <button> HERE </button> </a></div>`;
 
     sendVerificationMail(email, message, subject);
 
@@ -155,7 +155,7 @@ export const logout = (req, res) => {
 export const forgotPassword = async (req, resp, next) => {
   try {
     const { newEmail } = req.body;
-    const user = await User.findOne({ email:newEmail });
+    const user = await User.findOne({ email: newEmail });
     if (!user) return next(new ErrorHandler("User not found ", 401));
 
     const resetToken = await user.getResetToken();
@@ -199,7 +199,8 @@ export const resetPassword = async (req, resp, next) => {
     });
 
     if (!user) return next(new ErrorHandler("Reset token is invalid/Expired"));
-    user.password = req.body.password;
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    user.password = hashedPassword;
     user.resetPasswordExpire = undefined;
     user.resetPasswordToken = undefined;
 
